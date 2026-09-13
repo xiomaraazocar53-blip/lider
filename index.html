@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>YouTube</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  background:#0f0f0f;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  padding-top:58px;
+  padding-bottom:76px;
+}
+
+/* BARRA SUPERIOR */
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:58px;
+  background:#0f0f0f;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  z-index:1000;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:transform .25s ease;
+}
+
+.youtube-logo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:18px;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.youtube-symbol{
+  width:29px;
+  height:20px;
+  background:#ff0000;
+  border-radius:6px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.youtube-symbol:after{
+  content:"";
+  width:0;
+  height:0;
+  border-top:5px solid transparent;
+  border-bottom:5px solid transparent;
+  border-left:8px solid white;
+  margin-left:2px;
+}
+
+.top-search{
+  margin-left:auto;
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  border:0;
+  color:#aaa;
+}
+
+.top-search svg{
+  width:21px;
+  height:21px;
+  fill:none;
+  stroke:#aaa;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* CATEGORÍAS */
+.categories{
+  position:fixed;
+  top:58px;
+  left:0;
+  right:0;
+  height:47px;
+  background:#0f0f0f;
+  z-index:999;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:5px 10px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  transition:transform .25s ease;
+}
+
+.categories::-webkit-scrollbar{
+  display:none;
+}
+
+.categories.hidden{
+  transform:translateY(-105px);
+}
+
+.category{
+  flex:none;
+  border:1px solid rgba(150,150,150,.18);
+  background:#1c1c1c;
+  color:#ddd;
+  border-radius:18px;
+  padding:7px 14px;
+  font-size:13px;
+  white-space:nowrap;
+  text-decoration:none;
+}
+
+/* CASCADA */
+#feed{
+  width:100%;
+  max-width:650px;
+  margin:0 auto;
+}
+
+.video-card{
+  width:100%;
+  padding:10px 10px 15px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.thumbnail{
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  display:block;
+  background:#181818;
+  border-radius:8px;
+}
+
+.video-info{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding-top:9px;
+}
+
+.video-youtube-symbol{
+  width:26px;
+  height:18px;
+  background:#ff0000;
+  border-radius:5px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+}
+
+.video-youtube-symbol:after{
+  content:"";
+  width:0;
+  height:0;
+  border-top:4px solid transparent;
+  border-bottom:4px solid transparent;
+  border-left:7px solid white;
+  margin-left:1px;
+}
+
+.video-label{
+  font-size:14px;
+  color:#aaa;
+}
+
+/* NAVEGACIÓN INFERIOR */
+.bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:68px;
+  background:rgba(15,15,15,.97);
+  border-top:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  z-index:3000;
+  padding-bottom:2px;
+}
+
+.nav-item{
+  width:20%;
+  height:68px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:#aaa;
+  font-size:10px;
+  gap:4px;
+  background:transparent;
+  border:0;
+}
+
+.nav-icon{
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(130,130,130,.10);
+  border:1px solid rgba(150,150,150,.16);
+  border-radius:10px;
+}
+
+.nav-icon svg{
+  width:17px;
+  height:17px;
+  fill:none;
+  stroke:#aaa;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.nav-plus{
+  font-size:24px;
+  line-height:1;
+  color:#aaa;
+  font-weight:300;
+}
+
+/* PANTALLA DE BÚSQUEDA */
+.search-screen{
+  position:fixed;
+  inset:0;
+  background:#0f0f0f;
+  z-index:2500;
+  display:none;
+  overflow-y:auto;
+  padding:12px 14px 90px;
+}
+
+.search-screen.active{
+  display:block;
+}
+
+.search-header{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  height:48px;
+}
+
+.back-button{
+  width:38px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  background:transparent;
+  color:#aaa;
+}
+
+.back-button svg{
+  width:23px;
+  height:23px;
+  fill:none;
+  stroke:#aaa;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.search-box{
+  flex:1;
+  height:40px;
+  border:1px solid rgba(150,150,150,.22);
+  background:#1a1a1a;
+  border-radius:21px;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+
+.search-input{
+  flex:1;
+  min-width:0;
+  height:100%;
+  border:0;
+  outline:none;
+  background:transparent;
+  color:#fff;
+  padding:0 12px;
+  font-size:15px;
+}
+
+.search-input::placeholder{
+  color:#777;
+}
+
+.clear-button{
+  width:36px;
+  height:36px;
+  flex:none;
+  border:0;
+  background:transparent;
+  color:#aaa;
+  font-size:21px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.search-submit{
+  width:40px;
+  height:40px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  background:transparent;
+  color:#aaa;
+}
+
+.search-submit svg{
+  width:19px;
+  height:19px;
+  fill:none;
+  stroke:#aaa;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* HISTORIAL */
+.history{
+  padding-top:25px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.history-title{
+  width:100%;
+  text-align:center;
+  color:#888;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+.history-item{
+  width:100%;
+  max-width:420px;
+  min-height:44px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+}
+
+.history-item-text{
+  flex:1;
+  text-align:center;
+  padding-left:36px;
+  color:#ccc;
+  font-size:14px;
+}
+
+.history-delete{
+  width:38px;
+  height:38px;
+  border:0;
+  background:transparent;
+  color:#777;
+  font-size:18px;
+}
+
+.clear-history{
+  margin-top:20px;
+  align-self:center;
+  border:1px solid rgba(150,150,150,.18);
+  background:#1b1b1b;
+  color:#aaa;
+  border-radius:18px;
+  padding:8px 15px;
+  font-size:12px;
+}
+
+/* RESULTADOS */
+.search-results{
+  padding-top:18px;
+}
+
+.result-item{
+  padding:12px 4px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.result-text{
+  flex:1;
+  color:#ddd;
+  font-size:14px;
+  word-break:break-word;
+}
+
+.result-button{
+  width:38px;
+  height:38px;
+  flex:none;
+  border:0;
+  background:transparent;
+}
+
+.result-button svg{
+  width:19px;
+  height:19px;
+  fill:none;
+  stroke:#aaa;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* SIN RESALTADO */
+button,
+a,
+input{
+  -webkit-tap-highlight-color:transparent;
+  outline:none;
+}
+
+button:focus,
+a:focus,
+input:focus{
+  outline:none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     BARRA SUPERIOR
+     ========================= -->
+
+<div class="topbar" id="topbar">
+
+  <div class="youtube-logo">
+    <div class="youtube-symbol"></div>
+    <span>YouTube</span>
+  </div>
+
+  <button class="top-search" id="openSearch" aria-label="Buscar">
+    <svg viewBox="0 0 24 24">
+      <circle cx="10.8" cy="10.8" r="6.8"></circle>
+      <path d="M16 16l5 5"></path>
+    </svg>
+  </button>
+
+</div>
+
+
+<!-- =========================
+     CATEGORÍAS
+     ========================= -->
+
+<div class="categories" id="categories">
+
+  <!-- TODO: MISMO URL DE INICIO -->
+  <a
+    class="category"
+    href="https://xiomaraazocar53-blip.github.io/INICIO-/"
+  >
+    Todo
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=M%C3%BAsica"
+  >
+    Música
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=Pel%C3%ADculas"
+  >
+    Películas
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=Deportes"
+  >
+    Deportes
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=Noticias"
+  >
+    Noticias
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=En+vivo"
+  >
+    En vivo
+  </a>
+
+  <a
+    class="category"
+    href="https://www.youtube.com/results?search_query=Videojuegos"
+  >
+    Videojuegos
+  </a>
+
+</div>
+
+
+<!-- =========================
+     CASCADA DE VIDEOS
+     ========================= -->
+
+<div id="feed"></div>
+
+
+<!-- =========================
+     PANTALLA DE BÚSQUEDA
+     ========================= -->
+
+<div class="search-screen" id="searchScreen">
+
+  <div class="search-header">
+
+    <button
+      class="back-button"
+      id="backSearch"
+      aria-label="Volver"
+    >
+      <svg viewBox="0 0 24 24">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+
+    <div class="search-box">
+
+      <input
+        id="searchInput"
+        class="search-input"
+        type="text"
+        placeholder="Buscar"
+        autocomplete="off"
+      >
+
+      <button
+        id="clearSearch"
+        class="clear-button"
+        aria-label="Borrar"
+      >
+        ×
+      </button>
+
+      <button
+        id="searchSubmit"
+        class="search-submit"
+        aria-label="Buscar"
+      >
+        <svg viewBox="0 0 24 24">
+          <circle cx="10.8" cy="10.8" r="6.8"></circle>
+          <path d="M16 16l5 5"></path>
+        </svg>
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="history" id="history"></div>
+
+  <div class="search-results" id="searchResults"></div>
+
+</div>
+
+
+<!-- =========================
+     NAVEGACIÓN INFERIOR
+     ========================= -->
+
+<div class="bottom-nav">
+
+  <!-- 1. INICIO -->
+  <a
+    class="nav-item"
+    href="https://xiomaraazocar53-blip.github.io/INICIO-/"
+  >
+
+    <div class="nav-icon">
+
+      <svg viewBox="0 0 24 24">
+        <path d="M3 10.5L12 3l9 7.5"></path>
+        <path d="M5 9.5V21h14V9.5"></path>
+        <path d="M9 21v-7h6v7"></path>
+      </svg>
+
+    </div>
+
+    <span>Inicio</span>
+
+  </a>
+
+
+  <!-- 2. SHORTS -->
+  <a
+    class="nav-item"
+    href="https://m.youtube.com/shorts"
+  >
+
+    <div class="nav-icon">
+
+      <svg viewBox="0 0 24 24">
+
+        <path d="M17.77 10.32l-1.2-.5L18 8.06c1.84-1.28 2.33-3.77 1.05-5.61-1.28-1.84-3.77-2.33-5.61-1.05L5.2 6.55C3.89 7.46 3.12 8.95 3.12 10.53c.01 1.62.83 3.1 2.24 3.93l1.19.5-1.42 1.76c-1.84 1.28-2.33 3.77-1.05 5.61 1.28 1.84 3.77 2.33 5.61 1.05l8.24-5.15c1.31-.91 2.08-2.4 2.08-3.98-.01-1.62-.83-3.1-2.24-3.93zM10 14.5v-5l4.5 2.5L10 14.5z"></path>
+
+      </svg>
+
+    </div>
+
+    <span>Shorts</span>
+
+  </a>
+
+
+  <!-- 3. + DECORATIVO -->
+  <div class="nav-item">
+
+    <div class="nav-icon">
+
+      <div class="nav-plus">+</div>
+
+    </div>
+
+    <span>Crear</span>
+
+  </div>
+
+
+  <!-- 4. SUSCRIPCIONES -->
+  <a
+    class="nav-item"
+    href="https://m.youtube.com/feed/subscriptions"
+  >
+
+    <div class="nav-icon">
+
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+        <path d="M8 6V4h8v2"></path>
+        <path d="M8 12h8"></path>
+      </svg>
+
+    </div>
+
+    <span>Suscripciones</span>
+
+  </a>
+
+
+  <!-- 5. USUARIO / TU CANAL -->
+  <a
+    class="nav-item"
+    href="https://www.youtube.com/@XiomaraAzocar-t1c"
+  >
+
+    <div class="nav-icon">
+
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="3.5"></circle>
+        <path d="M5 21c.7-4.1 3.1-6 7-6s6.3 1.9 7 6"></path>
+      </svg>
+
+    </div>
+
+    <span>Tú</span>
+
+  </a>
+
+</div>
+
+
+<script>
+
+/* =========================
+   VIDEOS
+   ========================= */
+
+const videos = [
+
+/* BLOQUE 1 */
+"https://youtu.be/ASn1CiQIAjU?si=6Iq-lrWQ_3MBjJML",
+"https://youtu.be/W0_fVCMFU20?si=Ox1gkuJfQFI_Qo5L",
+"https://youtu.be/KGIUMP_XFLY?si=Nap0YDFuI41If1V5",
+"https://youtu.be/eMzIiK_SFVo?si=YLfA790aup9u82Jz",
+"https://youtu.be/KPH1wFfvMnk?si=_m1ffdJAroqasClk",
+"https://youtu.be/1bA9CWu7r1A?si=5x1LAhzTW_3mFRlz",
+"https://youtu.be/QtxSg2DTelk?si=cabpTCtqrof-5r1d",
+"https://youtu.be/wO1uUYRqamI?si=0IMFuW0DyDCmsP5r",
+"https://youtu.be/wg-Hmx54VlU?si=COItEi-5b-gk4BjA",
+"https://www.youtube.com/live/CCArcTZmTLM?si=bF-pTYO02lH22jjO",
+"https://youtu.be/fEeW_UqaBSQ?si=Q-HXGKk4uV-BLnmj",
+"https://youtu.be/Y6_Wz6PXa0M?si=G8ffCLnz8PgU-jEL",
+"https://youtu.be/NAMY64VhgK0?si=jhIBulo1Ln61nFBp",
+"https://www.youtube.com/live/-QfKYpV4htY?si=48JVimBHDKEoqHMj",
+"https://youtu.be/QviJwXMW1mk?si=vJuE_YSuNtxw2WRy",
+"https://youtu.be/AtasHwhAo_I?si=-i8ahFC_4uW0sWt0",
+"https://youtu.be/GMniyQIc1eU?si=g_pWjC02UQg781T6",
+"https://youtu.be/tV7wrEs8gqs?si=9FFbUFuIK2HEOJGk",
+"https://youtu.be/KeQsCYxJ9dk?si=4jCl-mXUE4xoSuWJ",
+"https://youtu.be/Sseoo7fedQQ?si=IseqC9zgOm3AHog4",
+"https://youtu.be/Roe7iRDJ2Sc?si=NX-S89iR0Xayn9v-",
+"https://youtu.be/K0UhdsQTY1w?si=IZ_QAbFhcO2Dv-zth",
+"https://youtu.be/TOwx72hyjE0?si=J7OhlUXFIKm8I0QU",
+"https://youtu.be/JFLuEE9oS0o?si=2MRGNldnjA_hSxAb",
+"https://youtu.be/uQ0LGwPBC2c?si=iB2yDpIkGUweAk4m",
+"https://youtu.be/rdE_ncI0Pbg?si=UjaztroH2f4_EgI",
+"https://youtu.be/vKlMSNDDnwc?si=ftLWJmIEHJa3rXZG",
+"https://youtu.be/2y2usyrm-9g?si=VeC1f8xYrweslkyl",
+"https://youtu.be/cenR0KImT5s?si=MtxAguNLq0Bex5dJ",
+
+/* BLOQUE 2 */
+"https://youtu.be/GK6FLjUdLN8?si=6Nedao46nTbzbdDO",
+"https://youtu.be/417kPkSX8Bg?si=dUymTBpjkqXe3tXw",
+"https://youtu.be/W0_fVCMFU20?si=qLohmFXhUMf4JfC-",
+"https://youtu.be/6ktqmkYEfYU?si=GM6X5HDyGBQTVE4a",
+"https://www.youtube.com/live/P7JwhJaunkw?si=9ho4H45KMjvtuPmb",
+"https://youtu.be/d9NuGrQyLyk?si=oTmh2suQXCsBKXp7",
+"https://youtu.be/4UuTjW7QyoA?si=D22Rg_JEgZfNOR-I",
+"https://youtu.be/s4l41KdW75M?si=wJ7q80euq42yf8Qg",
+"https://youtu.be/PiYlKjU1BGs?si=Tb58ijY_IJ79cuKT",
+"https://youtu.be/FgBG9Fvf6wc?si=JpdhUjSlhwuVp93M",
+"https://youtu.be/KYiDwPnECCY?si=lt1mZsNCMoksQ6eP",
+"https://youtu.be/73kiLzFosUM?si=vUOoBVooanh7HcBv",
+"https://youtu.be/HZKuMko5-U8?si=uQp9JaxIG4TAPUXa",
+"https://youtu.be/ZGseT0GHthY?si=xkJMSOo8rS_eOXPm",
+"https://youtu.be/enGacjo1EW4?si=coiMr-zvFH9um7l7",
+"https://youtu.be/2y2usyrm-9g?si=nZbRWNThRRNpRKX1",
+"https://youtu.be/1K5QIfQzdv0?si=rj0gx1MZOJzCM-mI",
+"https://youtu.be/wESx9xve3zE?si=ckBxOx6TOfF8r5Fw",
+"https://youtu.be/xHxH82zQrFo?si=M8BKHC6u9XcryOXl",
+"https://youtu.be/wOJLSVoQ7qY?si=L-69xuKmcDg_tuz0",
+"https://www.youtube.com/live/Z5hkKwcB2u4?si=EV-dHmVaBMqYIt-R",
+"https://youtu.be/n7qsT5QHtJA?si=Yt8oC7hLISBURI_R",
+"https://youtu.be/aD13En-GzhM?si=sd1Mg1UIAgFQWVkX",
+"https://youtu.be/THssZ6ZLumw?si=J8HHtNWbt1jYzFVY",
+"https://youtu.be/LiTFrM7lh4I?si=-szL0fovglAnumyw",
+"https://youtu.be/Wq2ANznJN7A?si=vzENrfGlXSaPZAJu",
+"https://youtu.be/w3CW9_841Tk?si=6ZQrpmJaUoJBZIis",
+"https://youtu.be/3s7jGHybsMg?si=Ov0xBoGHlk8sH0N_",
+"https://youtu.be/FKxysUOCvUU?si=tMd6TFXns16N-rGE",
+"https://youtu.be/ST_KMhzJ5NQ?si=ahnRchK3tM-vdwCH",
+"https://youtu.be/COzvHuzhfWc?si=FYyU-RfZyGVaAIPO",
+"https://youtu.be/nuUwusxMcAs?si=6YqzrnTGpSHPYiwI",
+"https://youtu.be/upGGh3jxOag?si=9QxmpA2yB2HvtMeX",
+"https://youtu.be/bZV2SaTGPNA?si=3qAsYIFPbuepUEzN",
+"https://www.youtube.com/live/Iq3alARcLv0?si=97ld0glip6TnGI9i",
+"https://youtu.be/-cpAbzJm7GU?si=7bLkABswlyWdWrUa",
+"https://youtu.be/TdqKb_kaa1I?si=FuLWZrfxKC-aYD3U",
+"https://youtu.be/5gOUDdEwkes?si=o7b2znfBgB3lW9tM",
+"https://youtu.be/U1VEz43Ytw0?si=s1WHkLCp6Xu-ZGAE",
+"https://youtu.be/8wtBevf0GA8?si=3QZSeMIh-UEnVD9W",
+
+/* BLOQUE 3 */
+"https://youtu.be/KMSx1k6hFCU?si=18IuEGsgpqdAvDrN",
+"https://youtu.be/-nLYgfVTGR8?si=reYbGXFHboblUAfx",
+"https://youtu.be/waQOOARtBaY?si=4RRDN1-ufWiTeYO1",
+"https://youtu.be/aBx4Tl6Gx5g?si=c9jsiWREgwwniSFO",
+"https://youtu.be/OdEpPSM2siE?si=z7Kt2g7-6kzTRssS",
+"https://youtu.be/NHxWcl1Pqts?si=UXDoSCZ5LrvFv8YT",
+"https://youtu.be/vtOUw1mcL1A?si=LkR2YMw2Q3oBSIIb",
+"https://youtu.be/JNc6YwCIEMk?si=BuG0HNwcYjjJt_95",
+"https://youtu.be/WbfogrbYEE4?si=RA1qKcivq_9M6c8u",
+"https://youtu.be/HQsswovXtPU?si=jFJ3bGWdJLFMAuJa",
+"https://youtu.be/oso8al0wuIs?si=_a1a68v_dbD1E4S5",
+"https://youtu.be/4aiOzqlkfcY?si=u0DCSFvYWJubSjXr",
+"https://youtu.be/WeUclk49FXU?si=CEXJaOfS_qD51A6w",
+"https://youtu.be/GobAHRb7saQ?si=LAayeoaUSfLoh3ue",
+"https://youtu.be/HV5msITrrlk?si=sXpvirDiCzt_KLHZ",
+"https://youtu.be/kUyHOYMNEu8?si=LcqPN6ymSh5owle",
+"https://youtu.be/4aPdanx0V2Q?si=SMFDyJFdgmbAQSuc",
+"https://youtu.be/A9rByj0-IXo?si=ptsK-ydYQs4_mpsj",
+"https://youtu.be/vc3mGv5yntY?si=S88_yFKVzz_zN_S4",
+"https://youtu.be/c3mEHmjZBQY?si=UgIHWhyPG5J7kgWu",
+"https://youtu.be/vjZnpTEesdc?si=UO4aS-7G4eItDrdy",
+"https://youtu.be/ZwycnPCK0pA?si=WFtUNvh3XOEi7clk",
+"https://youtu.be/wuFfiTEr2yc?si=rcy4DfVNDR2p-v9S",
+"https://youtu.be/kw0YhiqOPFg?si=AgxVg-7ksuc3713K",
+"https://youtu.be/eYGY0D8Xezo?si=fDEipo3xnZnDEEvV",
+"https://youtu.be/30iZcdVAJPI?si=ZkCxHNBneZkSU14Z",
+"https://youtu.be/yfPdBLNbp70?si=Zen0Znib57FPrxJh",
+"https://youtu.be/x9ITlFQfUzQ?si=8CEQlK48CQPK00_0",
+"https://youtu.be/zTtrGnXBYPk?si=W1P9niyDJh4eOAeC",
+"https://youtu.be/ZwTylNpEG3A?si=JjkB9DyhPM0So6Fg",
+"https://youtu.be/rT9qX3I8Z3s?si=TIJLcntahFnXMBLh",
+"https://youtu.be/or3ODyfUDxc?si=6zdnT7ySr1xrVbB7",
+"https://youtu.be/AO54HtN887o?si=DVZMVtTozl5qSGT6",
+"https://youtu.be/BvirH-wQRqo?si=XMGZ7moXpmi9WMZ-",
+"https://youtu.be/lqpmVfJ3WBg?si=YAmh5YZ3_10qZlK5",
+"https://youtu.be/1H-bnNa3JVc?si=HEADYCe9RZVvzQNi",
+"https://youtu.be/v9BQbLUfuUw?si=y9hDBZUe4K2vTtYa",
+"https://youtu.be/YT4dTFOkCng?si=dVxnVKBVSePmu6iU",
+"https://youtu.be/oAPlArjH3zU?si=4ZTEUxVhcmf4Xsyj",
+"https://youtu.be/-AIHW42u1As?si=dFnSQuUqyvXGHpQJ",
+"https://youtu.be/Z42TTFxydvA?si=yQ6GmJPKn1Afd04j",
+"https://youtu.be/RCdk_NTXwzA?si=RpbBgJNz8CLrXKYS",
+"https://youtu.be/JHpRktgvjB4?si=Yq4XgiJ7m9xxNpRD",
+"https://youtu.be/aIjPhI5LDCU?si=uNfDjkyTN6sGqKQV",
+"https://youtu.be/3H-FjbSBpKc?si=Z6xqhJaM7y_3AfBc",
+"https://youtu.be/D2by_s_gcMs?si=fPXGVSzbn5EYriiJ",
+"https://youtu.be/HVMMFKDVzwo?si=TEJ3bGWdJLFMAuJa",
+"https://youtu.be/T4fUtvuN_G8?si=gNfKDwjWGk5bogPK",
+"https://youtu.be/zsyORpXyzoY?si=uwJPCZwTbuPBVDvr",
+"https://youtu.be/9axrpOi5vqI?si=oZuyZFbu8gZn9lzV",
+"https://youtu.be/nHv-YSqX5Jg?si=tQ7UfYmGvHu8VfmV",
+"https://youtu.be/07QAGxM7m_s?si=9sf2AGumBPgemj3Z",
+"https://youtu.be/_Loq6OnPWWU?si=KgMIHj2sUFExTgrl",
+"https://youtu.be/mwE7zP35KnM?si=bfjsNAImsyyTyxmg",
+"https://youtu.be/iM49tkRfJZs?si=tWrtUbQJbJdtXRGU",
+"https://youtu.be/ng5NtJbU70Q?si=NUq_AZC6EFY9Fngz",
+
+/* BLOQUE 4 */
+"https://youtu.be/E-HPE1t1h88?si=1zcwV-t22e5usyvq",
+"https://youtu.be/ZUuQNPvsxK0?si=T75cn3L0bJbZS_9A",
+"https://youtu.be/kOfP_SUr52E?si=StJgCJmx_QgpKh9c",
+"https://youtu.be/GMFewiplIbw?si=3uAy0bOF3kA5W96t",
+"https://youtu.be/s85cKxJIpo0?si=4j5a7NE4CJ8qhzRO",
+"https://youtu.be/t0mHPsxOObQ?si=E6F1nK6Y8wlErhPy",
+"https://youtu.be/Ntk1mhyxiLY?si=PTvE_vLEL6mtGfhb",
+"https://youtu.be/HMf3Qv-PmRg?si=DVJHF23nK3Glh71-",
+"https://youtu.be/nYdLc1URCQ0?si=7zCBgHHUFTNWj9WT",
+"https://youtu.be/dgaCrimoIng?si=nh81ofXkOR1ceLtb",
+"https://youtu.be/TIu2tGCCKQw?si=HuYkRUtzxdnbQeEt",
+"https://youtu.be/yyJxA2Km4yw?si=obRujnuycoFvehPH",
+"https://youtu.be/PAYJHphiiyg?si=thxZjb2HKVtimCRx",
+"https://youtu.be/HXyVaumE2NU?si=rb6w8OXNqbDYUwi9",
+"https://youtu.be/_mYirXuQMaQ?si=-GSoZyFlEedKK6wg",
+"https://youtu.be/7vQR4iIVjIE?si=5v1Ed_wETOVhSyna",
+"https://youtu.be/zQou4nF7T3o?si=Lp9jkShDu_sLWsTz",
+"https://youtu.be/M5Fx48ew8Rk?si=EaGqwkMB8IbaCo-2",
+"https://youtu.be/-VN5TbDymvs?si=Jlhx-Xqj-jhw7Ku5",
+"https://youtu.be/jVXIdBNirpE?si=Wr_h4CeleElRdBSS",
+"https://youtu.be/JU9MvO86uY4?si=l_eoLUOXE4hhxNZr",
+"https://youtu.be/iXzQyk91NB4?si=VQ2nH7LwuuwrwCAC",
+"https://youtu.be/zkZiamCC0rA?si=ZbYrrxDL_SnoATxs",
+"https://youtu.be/t-xY-KR2IHE?si=BhsdLiKCRHhffIxA",
+"https://youtu.be/OsB_829I3jc?si=JA-bLzgxpH0BE9I1",
+"https://youtu.be/E9Igf2i_9K8?si=EHrup7qe8RowLk_8",
+"https://youtu.be/xxDUHyJrh_o?si=i2DdT_yStwOhEOVz",
+"https://youtu.be/r_s-7_JnMQg?si=uZN2k1NN6NgyXqw3",
+"https://youtu.be/LkE-jRvUiRk?si=vIyIAUOiCum_McNW",
+"https://youtu.be/CNOfAicD7Is?si=Q9ORMQdJN4b03kHD",
+"https://youtu.be/rDT9L8b047c?si=bfyEnb4HeiMNKw8W",
+"https://youtu.be/u0MqWulYGDQ?si=5Ua9FiHo0Un1xqfp",
+"https://youtu.be/ECmmD5wCyL8?si=7HxXBZnyQQvamzpD",
+"https://youtu.be/aCY7vRcqE3o?si=VGlEv3Ysw1ssjA50",
+"https://youtu.be/OmXwHvvAn3o?si=rmW_6LytknQnvMSq",
+"https://youtu.be/yebNIHKAC4A?si=iXs6GSrTCyohRtuU",
+"https://youtu.be/amEtzQV-G14?si=lq0UnWaly_cDewyy",
+"https://youtu.be/negFgRn4MM0?si=oFUxhPor_pL89oLv"
+
+];
+
+
+/* =========================
+   OBTENER ID DEL VIDEO
+   ========================= */
+
+function getVideoId(url){
+
+  if(url.includes("/live/")){
+    return url.split("/live/")[1].split("?")[0];
+  }
+
+  if(url.includes("youtu.be/")){
+    return url.split("youtu.be/")[1].split("?")[0];
+  }
+
+  if(url.includes("watch?v=")){
+    return url.split("watch?v=")[1].split("&")[0];
+  }
+
+  return "";
+}
+
+
+/* =========================
+   CREAR CASCADA
+   ========================= */
+
+const feed = document.getElementById("feed");
+
+videos.forEach(function(url){
+
+  const id = getVideoId(url);
+
+  if(!id) return;
+
+  const card = document.createElement("div");
+  card.className = "video-card";
+
+  const img = document.createElement("img");
+
+  img.className = "thumbnail";
+
+  img.src =
+    "https://img.youtube.com/vi/" +
+    id +
+    "/hqdefault.jpg";
+
+  img.alt = "Video";
+
+  img.loading = "lazy";
+
+  img.addEventListener("click",function(){
+
+    window.location.href = url;
+
+  });
+
+
+  const info = document.createElement("div");
+
+  info.className = "video-info";
+
+
+  const symbol =
+    document.createElement("div");
+
+  symbol.className =
+    "video-youtube-symbol";
+
+
+  const label =
+    document.createElement("div");
+
+  label.className =
+    "video-label";
+
+  label.textContent =
+    "Video";
+
+
+  info.appendChild(symbol);
+  info.appendChild(label);
+
+  card.appendChild(img);
+  card.appendChild(info);
+
+  feed.appendChild(card);
+
+});
+
+
+/* =========================
+   BÚSQUEDA
+   ========================= */
+
+const openSearch =
+  document.getElementById("openSearch");
+
+const searchScreen =
+  document.getElementById("searchScreen");
+
+const backSearch =
+  document.getElementById("backSearch");
+
+const searchInput =
+  document.getElementById("searchInput");
+
+const clearSearch =
+  document.getElementById("clearSearch");
+
+const searchSubmit =
+  document.getElementById("searchSubmit");
+
+const historyBox =
+  document.getElementById("history");
+
+const searchResults =
+  document.getElementById("searchResults");
+
+
+const HISTORY_KEY =
+  "youtube_history";
+
+const MAX_HISTORY = 20;
+
+
+/* OBTENER HISTORIAL */
+
+function getHistory(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(HISTORY_KEY) || "[]"
+    );
+
+  }catch(e){
+
+    return [];
+
+  }
+
+}
+
+
+/* GUARDAR HISTORIAL */
+
+function saveHistory(text){
+
+  text = text.trim();
+
+  if(!text) return;
+
+  let history = getHistory();
+
+  history =
+    history.filter(function(item){
+
+      return item.toLowerCase()
+        !== text.toLowerCase();
+
+    });
+
+  history.unshift(text);
+
+  history =
+    history.slice(0,MAX_HISTORY);
+
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(history)
+  );
+
+  renderHistory();
+
+}
+
+
+/* MOSTRAR HISTORIAL */
+
+function renderHistory(){
+
+  historyBox.innerHTML = "";
+
+  const history =
+    getHistory();
+
+
+  if(history.length === 0){
+
+    historyBox.innerHTML =
+      '<div class="history-title">Sin búsquedas recientes</div>';
+
+    return;
+
+  }
+
+
+  const title =
+    document.createElement("div");
+
+  title.className =
+    "history-title";
+
+  title.textContent =
+    "Historial";
+
+  historyBox.appendChild(title);
+
+
+  history.forEach(function(text){
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "history-item";
+
+
+    const textBox =
+      document.createElement("div");
+
+    textBox.className =
+      "history-item-text";
+
+    textBox.textContent =
+      text;
+
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.className =
+      "history-delete";
+
+    deleteButton.textContent =
+      "×";
+
+
+    deleteButton.onclick =
+      function(e){
+
+        e.stopPropagation();
+
+        let h = getHistory();
+
+        h =
+          h.filter(function(item){
+
+            return item !== text;
+
+          });
+
+        localStorage.setItem(
+          HISTORY_KEY,
+          JSON.stringify(h)
+        );
+
+        renderHistory();
+
+      };
+
+
+    row.appendChild(textBox);
+    row.appendChild(deleteButton);
+
+
+    row.onclick =
+      function(){
+
+        searchInput.value =
+          text;
+
+        updateClearButton();
+
+        performSearch();
+
+      };
+
+
+    historyBox.appendChild(row);
+
+  });
+
+
+  const clearHistoryButton =
+    document.createElement("button");
+
+  clearHistoryButton.className =
+    "clear-history";
+
+  clearHistoryButton.textContent =
+    "Borrar historial";
+
+
+  clearHistoryButton.onclick =
+    function(){
+
+      localStorage.removeItem(
+        HISTORY_KEY
+      );
+
+      renderHistory();
+
+    };
+
+
+  historyBox.appendChild(
+    clearHistoryButton
+  );
+
+}
+
+
+/* ABRIR BÚSQUEDA */
+
+openSearch.onclick =
+  function(){
+
+    searchScreen.classList.add(
+      "active"
+    );
+
+    renderHistory();
+
+    setTimeout(function(){
+
+      searchInput.focus();
+
+    },100);
+
+  };
+
+
+/* VOLVER */
+
+backSearch.onclick =
+  function(){
+
+    searchScreen.classList.remove(
+      "active"
+    );
+
+    searchResults.innerHTML =
+      "";
+
+  };
+
+
+/* MOSTRAR X */
+
+function updateClearButton(){
+
+  if(searchInput.value.trim()){
+
+    clearSearch.style.display =
+      "flex";
+
+  }else{
+
+    clearSearch.style.display =
+      "none";
+
+  }
+
+}
+
+
+searchInput.addEventListener(
+  "input",
+  function(){
+
+    updateClearButton();
+
+  }
+);
+
+
+/* BORRAR TEXTO */
+
+clearSearch.onclick =
+  function(){
+
+    searchInput.value =
+      "";
+
+    searchResults.innerHTML =
+      "";
+
+    updateClearButton();
+
+    searchInput.focus();
+
+  };
+
+
+/* REALIZAR BÚSQUEDA */
+
+function performSearch(){
+
+  const text =
+    searchInput.value.trim();
+
+  if(!text) return;
+
+  saveHistory(text);
+
+  window.location.href =
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(text);
+
+}
+
+
+searchSubmit.onclick =
+  function(){
+
+    performSearch();
+
+  };
+
+
+searchInput.addEventListener(
+  "keydown",
+  function(e){
+
+    if(e.key === "Enter"){
+
+      performSearch();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   OCULTAR / MOSTRAR
+   ========================= */
+
+let lastScroll = 0;
+
+window.addEventListener(
+  "scroll",
+  function(){
+
+    const current =
+      window.scrollY;
+
+
+    if(
+      current > lastScroll &&
+      current > 70
+    ){
+
+      document.getElementById(
+        "topbar"
+      ).style.transform =
+        "translateY(-105px)";
+
+      document.getElementById(
+        "categories"
+      ).classList.add(
+        "hidden"
+      );
+
+    }else{
+
+      document.getElementById(
+        "topbar"
+      ).style.transform =
+        "translateY(0)";
+
+      document.getElementById(
+        "categories"
+      ).classList.remove(
+        "hidden"
+      );
+
+    }
+
+
+    lastScroll =
+      current;
+
+  }
+);
+
+
+/* HISTORIAL INICIAL */
+
+renderHistory();
+
+</script>
+
+</body>
+</html>
